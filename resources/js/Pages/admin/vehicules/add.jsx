@@ -1,8 +1,9 @@
+import BreadCumbHeader from '@/Components/BreadCumbHeader';
 import ConfirmModal from '@/Components/ConfirmModal';
 import MyHeader from '@/Components/Header';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import {
     FormControl,
     InputLabel,
@@ -10,7 +11,6 @@ import {
     Select,
     TextField,
 } from '@mui/material';
-import { GridAddIcon } from '@mui/x-data-grid';
 import React, { useEffect, useState } from 'react';
 
 function AddVehicule({ categories, errors }) {
@@ -66,22 +66,27 @@ function AddVehicule({ categories, errors }) {
 
     return (
         <AdminLayout
+            breadcrumbHeader={
+                <BreadCumbHeader
+                    title="Tableau de Bord"
+                    breadcrumbItems={[
+                        { label: 'Véhicules', href: '/admin/vehicules/' },
+                        { label: 'Ajouter un Véhicule' },
+                    ]}
+                />
+            }
             header={
                 <MyHeader
                     title="Ajouter un Véhicule"
-                    breadcrumbItems={[
-                        { label: 'Accueil', href: '/' },
-                        { label: 'Véhicules' },
-                        { label: 'Ajouter un Véhicule' },
-                    ]}
+                    breadcrumbItems={[]}
                     right={
                         <div className="flex space-x-4 py-5">
-                            <PrimaryButton
+                            {/* <PrimaryButton
                                 onClick={() => router.get('/vehicules')}
                             >
                                 <GridAddIcon />
                                 Retour aux Véhicules
-                            </PrimaryButton>
+                            </PrimaryButton> */}
                         </div>
                     }
                 />
@@ -89,6 +94,16 @@ function AddVehicule({ categories, errors }) {
         >
             <Head title="Ajouter un Véhicule" />
             <div className="mx-auto space-y-5 p-6 pt-0">
+                <div className="rounded-lg">
+                    <h2 className="mb-2 text-2xl font-bold text-gray-800">
+                        Ajout d'un Véhicule
+                    </h2>
+                    <p className="text-gray-600">
+                        Veuillez remplir les informations nécessaires pour
+                        ajouter un nouveau véhicule.
+                    </p>
+                </div>
+
                 <form
                     onSubmit={handleSubmit}
                     className="grid grid-cols-1 gap-4"
@@ -266,13 +281,15 @@ function AddVehicule({ categories, errors }) {
                                 </div>
                             )}
                         </div>
+                    </div>
 
+                    <div className="mt-5 flex justify-end">
                         <PrimaryButton
                             type="submit"
                             disabled={processing}
-                            className="mt-4"
+                            className="bg-blue-600 text-white"
                         >
-                            Ajouter le Véhicule
+                            {processing ? 'Enregistrement...' : 'Enregistrer'}
                         </PrimaryButton>
                     </div>
                 </form>

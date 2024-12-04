@@ -8,13 +8,7 @@ import Settings from '@/Components/Settings';
 import UserDropdown from '@/Components/UserDropdown';
 import { useThemeContext } from '@/contexts/ThemeContext';
 import { router, useForm, usePage } from '@inertiajs/react';
-import {
-    Add,
-    CarRental,
-    Category,
-    List,
-    RoomService,
-} from '@mui/icons-material';
+import { Add, CarRental, Category, List } from '@mui/icons-material';
 import { Alert, Snackbar } from '@mui/material';
 import { GridAddIcon } from '@mui/x-data-grid';
 import {
@@ -23,7 +17,6 @@ import {
     LayoutDashboard,
     LifeBuoy,
     Moon,
-    Settings2,
     Sun,
     Users2,
 } from 'lucide-react';
@@ -31,7 +24,7 @@ import PrimaryButton from '../Components/PrimaryButton';
 import SecondaryButton from '../Components/SecondaryButton';
 // import { Toast } from "@radix-ui/react-toast";
 
-export default function AdminLayout({ header, children }) {
+export default function AdminLayout({ header, children, breadcrumbHeader }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
     const { flash, auth } = usePage().props;
@@ -141,7 +134,7 @@ export default function AdminLayout({ header, children }) {
 
     return (
         <div
-            className={`flex h-screen overflow-y-hidden bg-neutral-50  dark:bg-gray-900`}
+            className={`flex h-screen overflow-y-hidden bg-neutral-50 dark:bg-gray-900 `}
         >
             <Sidebar auth={auth}>
                 <SidebarItem
@@ -230,11 +223,11 @@ export default function AdminLayout({ header, children }) {
                     text="Paramètres"
                     // link="/settings"
                 /> */}
-                <SidebarItem
+                {/* <SidebarItem
                     icon={<LifeBuoy size={20} />}
                     text="Aide"
                     // link="/help"
-                />
+                /> */}
             </Sidebar>
 
             <div className="flex-grow overflow-y-hidden">
@@ -244,9 +237,9 @@ export default function AdminLayout({ header, children }) {
                     ref={scrollRef}
                 >
                     <nav
-                        className={`sticky left-0 right-0 top-0 z-50 m-3 my-0 mb-5 mt-3 rounded-lg  py-1  backdrop-blur-lg transition-all duration-300 ${
+                        className={`sticky left-0 right-0 top-0 z-50 m-3 my-0 mb-5 mt-3 rounded-lg py-1 backdrop-blur-lg transition-all duration-300 ${
                             isScrolled
-                                ? 'bg-white/80 px-5 shadow-lg dark:bg-gray-800'
+                                ? 'bg-white/80  shadow-lg dark:bg-gray-800'
                                 : 'bg-white px-0 shadow-md dark:bg-gray-800/50'
                         }`}
                         // style={{
@@ -256,7 +249,7 @@ export default function AdminLayout({ header, children }) {
                         // }}
                     >
                         <div className="flex h-16 items-center justify-between">
-                            <div></div>
+                            <div>{breadcrumbHeader}</div>
                             {/* Right Side (Search, Buttons, User Dropdown) */}
                             <div className="flex items-center space-x-4">
                                 {/* Dark Mode Toggle */}
@@ -282,14 +275,17 @@ export default function AdminLayout({ header, children }) {
                                     <SecondaryButton
                                         isSticky
                                         className="border border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                    >
+                                        onClick={() =>
+                                            router.get('/admin/clients/create')
+                                        }
+                                   >
                                         <GridAddIcon className="mr-2" />
                                         Client
                                     </SecondaryButton>
                                     <PrimaryButton
-                                        onClick={() =>
-                                            router.get('/projects/add')
-                                        }
+                                       onClick={() =>
+                                        router.get('/admin/vehicules/create')
+                                    }
                                     >
                                         <GridAddIcon className="mr-2" />
                                         Véhicule
@@ -311,7 +307,7 @@ export default function AdminLayout({ header, children }) {
                                                 },
                                             },
 
-                                            { label: 'Aide', action: () => {} },
+                                            // { label: 'Aide', action: () => {} },
                                         ]}
                                     />
                                 </div>
@@ -396,7 +392,9 @@ export default function AdminLayout({ header, children }) {
                         title="Confirmer la deconxxion"
                         content="Êtes-vous sûr de vouloir vous deconnecter ?"
                     />
+                      <div className='mb-12'></div>
                     {header}
+                  
                     {children}
                     <Settings />
                 </main>

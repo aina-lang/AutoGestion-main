@@ -1,8 +1,9 @@
+import BreadCumbHeader from '@/Components/BreadCumbHeader';
 import ConfirmModal from '@/Components/ConfirmModal';
 import MyHeader from '@/Components/Header';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import {
     FormControl,
     InputLabel,
@@ -10,7 +11,6 @@ import {
     Select,
     TextField,
 } from '@mui/material';
-import { GridAddIcon } from '@mui/x-data-grid';
 import React, { useEffect, useState } from 'react';
 
 function EditVehicule({ vehicule, categories }) {
@@ -143,6 +143,14 @@ function EditVehicule({ vehicule, categories }) {
 
     return (
         <AdminLayout
+            breadcrumbHeader={
+                <BreadCumbHeader
+                    breadcrumbItems={[
+                        { label: 'Véhicules', href: '/admin/vehicules/' },
+                        { label: 'Modifier un Véhicule' },
+                    ]}
+                />
+            }
             header={
                 <MyHeader
                     title="Modifier un Véhicule"
@@ -152,13 +160,23 @@ function EditVehicule({ vehicule, categories }) {
                         { label: 'Modifier un Véhicule' },
                     ]}
                     right={
-                        <div className="flex space-x-4 py-5">
+                        <div className="mx-auto flex w-full justify-start space-y-5 p-6 pt-0">
+                            <div className="rounded-lg">
+                                <h2 className="mb-2 text-2xl font-bold text-gray-800">
+                                    Modification d'un véhicule
+                                </h2>
+                                <p className="text-gray-600">
+                                    Veuillez modifier les informations
+                                    nécessaires pour mettre à jour ce véhicule.
+                                </p>
+                            </div>
+                            {/* 
                             <PrimaryButton
                                 onClick={() => router.get('/vehicules')}
                             >
                                 <GridAddIcon />
                                 Retour aux Véhicules
-                            </PrimaryButton>
+                            </PrimaryButton> */}
                         </div>
                     }
                 />

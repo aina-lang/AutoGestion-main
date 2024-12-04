@@ -329,10 +329,10 @@ const GuestLayout = ({ children, auth, footerShown }) => {
                                     action: () => router.visit('/profil'),
                                 },
 
-                                {
-                                    label: 'Aide',
-                                    action: () => router.visit('/aide'),
-                                },
+                                // {
+                                //     label: 'Aide',
+                                //     action: () => router.visit('/aide'),
+                                // },
                             ]}
                         />
                     )}

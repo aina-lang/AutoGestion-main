@@ -16,13 +16,13 @@ interface BreadcrumbItemType {
     icon?: React.ReactNode; // Make icon optional
 }
 
-interface MyHeaderProps {
+interface BreadCumbHeaderProps {
     title: string;
     breadcrumbItems: BreadcrumbItemType[];
     right: React.ReactElement;
 }
 
-const MyHeader: React.FC<MyHeaderProps> = ({
+const BreadCumbHeader: React.FC<BreadCumbHeaderProps> = ({
     title,
     breadcrumbItems,
     right,
@@ -30,23 +30,23 @@ const MyHeader: React.FC<MyHeaderProps> = ({
     // Add "Accueil" as the first breadcrumb item
 
     // Ajout de "Tableau de bord" en tant que premier élément de la breadcrumb
-    // const items: BreadcrumbItemType[] = [
-    //     {
-    //         label: 'Tableau de bord',
-    //         href: `dashboard`, // Redirection selon la route actuelle
-    //         icon: <HomeIcon className="h-5 w-5" aria-hidden="true" />, // Ajustement de la taille de l'icône si nécessaire
-    //     },
-    //     ...breadcrumbItems,
-    // ];
+    const items: BreadcrumbItemType[] = [
+        {
+            label: 'Tableau de bord',
+            href: `dashboard`, // Redirection selon la route actuelle
+            icon: <HomeIcon className="h-5 w-5" aria-hidden="true" />, // Ajustement de la taille de l'icône si nécessaire
+        },
+        ...breadcrumbItems,
+    ];
 
     return (
         <div className="overflow-y-hidden py-0">
             <div className="mx-auto w-full">
                 <div className="overflow-hidden">
                     <div className="p-6 text-gray-900">
-                        <div className="flex flex-row items-center justify-end">
+                        <div className="flex flex-row items-center justify-between">
                             {/* Breadcrumb Component */}
-                            {/* <Breadcrumb>
+                            <Breadcrumb>
                                 <BreadcrumbList className="flex items-center space-x-2">
                                     {items.map((item, index) => (
                                         <React.Fragment key={index}>
@@ -81,7 +81,7 @@ const MyHeader: React.FC<MyHeaderProps> = ({
                                         </React.Fragment>
                                     ))}
                                 </BreadcrumbList>
-                            </Breadcrumb> */}
+                            </Breadcrumb>
 
                             {right}
                             {/* Header Title */}
@@ -94,4 +94,4 @@ const MyHeader: React.FC<MyHeaderProps> = ({
     );
 };
 
-export default MyHeader;
+export default BreadCumbHeader;

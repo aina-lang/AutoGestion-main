@@ -1,10 +1,10 @@
+import BreadCumbHeader from '@/Components/BreadCumbHeader';
 import ConfirmModal from '@/Components/ConfirmModal';
 import MyHeader from '@/Components/Header';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import { TextField } from '@mui/material';
-import { GridAddIcon } from '@mui/x-data-grid';
 import React from 'react';
 
 function AddCategorie({ categorie }) {
@@ -21,22 +21,40 @@ function AddCategorie({ categorie }) {
 
     return (
         <AdminLayout
+            breadcrumbHeader={
+                <BreadCumbHeader
+                    breadcrumbItems={[
+                        { label: 'Catégories', href: '/admin/categories/' },
+                        { label: 'Modifier un Catégorie' },
+                    ]}
+                />
+            }
             header={
                 <MyHeader
-                    title="Ajouter un Véhicule"
+                    title="Modifier un Véhicule"
                     breadcrumbItems={[
-                        { label: 'Accueil', href: '/' },
-                        { label: 'Véhicules' },
-                        { label: 'Ajouter un Véhicule' },
+                        { label: 'Catégories' },
+                        { label: 'Modifier une Catégorie' },
                     ]}
                     right={
-                        <div className="flex space-x-4 py-5">
-                            <PrimaryButton
-                                onClick={() => router.get('/vehicules')}
-                            >
-                                <GridAddIcon />
-                                Retour aux Véhicules
-                            </PrimaryButton>
+                        <div className="mx-auto flex w-full justify-start space-y-5 p-6 pt-0">
+                            <div className="rounded-lg">
+                                <h2 className="mb-2 text-2xl font-bold text-gray-800">
+                                    Modification d'une catégorie
+                                </h2>
+                                <p className="text-gray-600">
+                                    Veuillez modifier les informations
+                                    nécessaires pour mettre à jour cette
+                                    catégorie.
+                                </p>
+                            </div>
+                            {/* 
+                        <PrimaryButton
+                            onClick={() => router.get('/vehicules')}
+                        >
+                            <GridAddIcon />
+                            Retour aux Véhicules
+                        </PrimaryButton> */}
                         </div>
                     }
                 />

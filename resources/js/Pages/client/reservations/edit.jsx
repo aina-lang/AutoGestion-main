@@ -1,21 +1,21 @@
 import MyHeader from '@/Components/Header';
 import PrimaryButton from '@/Components/PrimaryButton';
-import AdminLayout from '@/Layouts/AdminLayout';
-import { Head, useForm } from '@inertiajs/react';
+import ClientLayout from '@/Layouts/ClientLayout';
+import { Head, router, useForm } from '@inertiajs/react';
 import { Autocomplete, Grid, TextField } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import React, { useEffect } from 'react';
 
-const AddReservation = ({ users, vehicules }) => {
-    const { data, setData, post, processing, errors, setError } = useForm({
-        user_id: users[0].id,
-        vehicule_id: null,
-        type_voyage: null,
-        date_depart: null,
-        date_retour: null,
-        motif: '',
+const EditReservation = ({ users, vehicules, reservation }) => {
+    const { data, setData, put, processing, errors } = useForm({
+        user_id: reservation.user_id || null,
+        vehicule_id: reservation.vehicule_id || null,
+        type_voyage: reservation.type_voyage || null,
+        date_depart: reservation.date_depart ? dayjs(reservation.date_depart) : null,
+        date_retour: reservation.date_retour ? dayjs(reservation.date_retour) : null,
+        motif: reservation.motif || '',
     });
 
     const travelTypes = [
@@ -25,13 +25,13 @@ const AddReservation = ({ users, vehicules }) => {
     ];
 
     useEffect(() => {
-        if (users.length > 0) {
+        if (!data.user_id && users.length > 0) {
             setData('user_id', users[0]?.id);
         }
-        if (vehicules.length > 0) {
+        if (!data.vehicule_id && vehicules.length > 0) {
             setData('vehicule_id', vehicules[0]?.id);
         }
-        if (travelTypes.length > 0) {
+        if (!data.type_voyage && travelTypes.length > 0) {
             setData('type_voyage', travelTypes[0]?.label);
         }
     }, [users, vehicules]);
@@ -45,63 +45,42 @@ const AddReservation = ({ users, vehicules }) => {
             !data.date_retour ||
             dayjs(data.date_retour).isBefore(data.date_depart)
         ) {
-            alert(
-                'La date de retour doit être égale ou supérieure à la date de départ.',
-            );
+            alert('La date de retour doit être égale ou supérieure à la date de départ.');
             return;
         }
 
         // Format dates for submission
-
-        const formData = new FormData();
-
-        const formattedDetails = {
+        const formData = {
             ...data,
-            date_depart: data.date_depart
-                ? data.date_depart.format('YYYY-MM-DD HH:mm:ss')
-                : null,
-            date_retour: data.date_retour
-                ? data.date_retour.format('YYYY-MM-DD HH:mm:ss')
-                : null,
+            date_depart: data.date_depart.format('YYYY-MM-DD HH:mm:ss'),
+            date_retour: data.date_retour.format('YYYY-MM-DD HH:mm:ss'),
         };
 
-        console.log(formattedDetails);
-        Object.keys(formattedDetails).forEach((key) => {
-            formData.append(key, formattedDetails[key]);
-        });
-
-        post('/admin/reservations', {
-            onSuccess: () => {},
+        // Use 'put' for updating the reservation
+        router.put(`/admin/reservations/${reservation.id}`, formData, {
+            onSuccess: () => {
+                // Do something on success, like redirect or display a message
+            },
             onError: (errors) => {
                 console.error('Submission errors:', errors);
             },
         });
     };
 
-    useEffect(() => {
-        if (errors) {
-            Object.keys(errors).forEach((field) => {
-                if (errors[field] && errors[field][0]) {
-                    setError(field, { type: 'manual', message: errors[field] });
-                }
-            });
-        }
-    }, [errors, setError]);
-
     return (
-        <AdminLayout
+        <ClientLayout
             header={
                 <MyHeader
-                    title="Ajouter une Réservation"
+                    title="Modifier la Réservation"
                     breadcrumbItems={[
                         { label: 'Accueil', href: '/' },
-                        { label: 'Réservations', href: '/admin/reservations' },
-                        { label: 'Ajouter' },
+                        { label: 'Réservations', href: '/Client/reservations' },
+                        { label: 'Modifier' },
                     ]}
                 />
             }
         >
-            <Head title="Ajouter une Réservation" />
+            <Head title="Modifier la Réservation" />
             <div className="mx-auto space-y-5 p-6 pt-0">
                 <form onSubmit={handleSubmit} className="p-4">
                     <Grid container spacing={2}>
@@ -110,13 +89,11 @@ const AddReservation = ({ users, vehicules }) => {
                                 options={users}
                                 getOptionLabel={(option) => option.nom}
                                 value={
-                                    users.find(
-                                        (user) => user.id === data.user_id,
-                                    ) || null
+                                    users.find((user) => user.id === data.user_id) || null
                                 }
-                                onChange={(event, newValue) =>
-                                    setData('user_id', newValue?.id || null)
-                                }
+                                onChange={(event, newValue) => {
+                                    setData('user_id', newValue?.id || null);
+                                }}
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
@@ -124,9 +101,7 @@ const AddReservation = ({ users, vehicules }) => {
                                         variant="outlined"
                                         fullWidth
                                         error={!!errors.user_id}
-                                        helperText={
-                                            errors.user_id?.message || ''
-                                        }
+                                        helperText={errors.user_id}
                                     />
                                 )}
                             />
@@ -137,13 +112,12 @@ const AddReservation = ({ users, vehicules }) => {
                                 getOptionLabel={(option) => option.marque}
                                 value={
                                     vehicules.find(
-                                        (vehicule) =>
-                                            vehicule.id === data.vehicule_id,
+                                        (vehicule) => vehicule.id === data.vehicule_id,
                                     ) || null
                                 }
-                                onChange={(event, newValue) =>
-                                    setData('vehicule_id', newValue?.id || null)
-                                }
+                                onChange={(event, newValue) => {
+                                    setData('vehicule_id', newValue?.id || null);
+                                }}
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
@@ -151,9 +125,7 @@ const AddReservation = ({ users, vehicules }) => {
                                         variant="outlined"
                                         fullWidth
                                         error={!!errors.vehicule_id}
-                                        helperText={
-                                            errors.vehicule_id?.message || ''
-                                        }
+                                        helperText={errors.vehicule_id}
                                     />
                                 )}
                             />
@@ -164,16 +136,12 @@ const AddReservation = ({ users, vehicules }) => {
                                 getOptionLabel={(option) => option.label}
                                 value={
                                     travelTypes.find(
-                                        (type) =>
-                                            type.label === data.type_voyage,
+                                        (type) => type.label === data.type_voyage,
                                     ) || null
                                 }
-                                onChange={(event, newValue) =>
-                                    setData(
-                                        'type_voyage',
-                                        newValue?.label || null,
-                                    )
-                                }
+                                onChange={(event, newValue) => {
+                                    setData('type_voyage', newValue?.label || null);
+                                }}
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
@@ -181,9 +149,7 @@ const AddReservation = ({ users, vehicules }) => {
                                         variant="outlined"
                                         fullWidth
                                         error={!!errors.type_voyage}
-                                        helperText={
-                                            errors.type_voyage?.message || ''
-                                        }
+                                        helperText={errors.type_voyage}
                                     />
                                 )}
                             />
@@ -192,25 +158,21 @@ const AddReservation = ({ users, vehicules }) => {
                             <TextField
                                 label="Motif"
                                 value={data.motif}
-                                onChange={(e) =>
-                                    setData('motif', e.target.value)
-                                }
+                                onChange={(e) => setData('motif', e.target.value)}
                                 fullWidth
                                 variant="outlined"
                                 multiline
                                 rows={4}
                                 error={!!errors.motif}
-                                helperText={errors.motif?.message || ''}
+                                helperText={errors.motif}
                             />
                         </Grid>
-                        <div className="m-4 grid grid-cols-2 gap-4">
+                        <Grid item xs={12}>
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DatePicker
                                     label="Date de départ souhaitée"
                                     value={data.date_depart}
-                                    onChange={(newValue) =>
-                                        setData('date_depart', newValue)
-                                    }
+                                    onChange={(newValue) => setData('date_depart', newValue)}
                                     shouldDisableDate={(date) =>
                                         date.isBefore(dayjs().startOf('day'))
                                     }
@@ -218,23 +180,20 @@ const AddReservation = ({ users, vehicules }) => {
                                         <TextField
                                             {...params}
                                             fullWidth
+                                            sx={{ mt: 2 }}
                                             error={!!errors.date_depart}
-                                            helperText={
-                                                errors.date_depart?.message ||
-                                                ''
-                                            }
+                                            helperText={errors.date_depart}
                                         />
                                     )}
                                 />
                             </LocalizationProvider>
-
+                        </Grid>
+                        <Grid item xs={12}>
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DatePicker
                                     label="Date de Retour"
                                     value={data.date_retour}
-                                    onChange={(newValue) =>
-                                        setData('date_retour', newValue)
-                                    }
+                                    onChange={(newValue) => setData('date_retour', newValue)}
                                     shouldDisableDate={(date) =>
                                         date.isBefore(dayjs().startOf('day'))
                                     }
@@ -242,27 +201,24 @@ const AddReservation = ({ users, vehicules }) => {
                                         <TextField
                                             {...params}
                                             fullWidth
+                                            sx={{ mt: 2 }}
                                             error={!!errors.date_retour}
-                                            helperText={
-                                                errors.date_retour?.message ||
-                                                ''
-                                            }
+                                            helperText={errors.date_retour}
                                         />
                                     )}
                                 />
                             </LocalizationProvider>
-                        </div>
-
+                        </Grid>
                         <Grid item xs={12}>
                             <PrimaryButton type="submit" disabled={processing}>
-                                Ajouter la réservation
+                                Modifier la réservation
                             </PrimaryButton>
                         </Grid>
                     </Grid>
                 </form>
             </div>
-        </AdminLayout>
+        </ClientLayout>
     );
 };
 
-export default AddReservation;
+export default EditReservation;

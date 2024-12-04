@@ -9,10 +9,7 @@
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
-            /* Supprime les marges par défaut */
             padding: 20px;
-            /* Supprime les espacements internes */
-
             background-color: #f9f9f9;
             color: #333;
         }
@@ -20,7 +17,6 @@
         @page {
             size: A4;
             margin: 0;
-            /* Enlève les marges de la page pour l'impression */
         }
 
         h1 {
@@ -28,33 +24,35 @@
             color: #2c3e50;
             font-size: 2.5em;
             margin-bottom: 30px;
+            font-weight: 600;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top:50px;
+            margin-top: 50px;
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        
         th,
         td {
             padding: 18px;
             text-align: left;
             font-size: 1.1em;
+            border-bottom: 1px solid #ddd;
         }
 
         th {
             background-color: #f2f2f2;
             color: #2c3e50;
             text-transform: uppercase;
+            font-weight: 600;
         }
 
         td {
-            border-bottom: 1px solid #ddd;
+            font-size: 1.1em;
         }
 
         .highlight {
@@ -76,7 +74,6 @@
             bottom: 20px;
             left: 0;
             right: 0;
-            margin: 40px auto 0;
         }
 
         .header {
@@ -84,18 +81,45 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 50px;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 20px;
         }
 
         .header img {
-            width: 100px;
+            width: 120px;
             height: auto;
         }
 
         .header .agency-name {
-            font-size: 1.5em;
+            font-size: 1.6em;
             color: #2c3e50;
             font-weight: bold;
         }
+
+        .reservation-info {
+            margin-top: 40px;
+            text-align: center;
+            color: #34495e;
+            font-size: 1.3em;
+        }
+
+        .status {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .status-confirmed {
+            color: green;
+        }
+
+        .status-pending {
+            color: orange;
+        }
+
+        .status-cancelled {
+            color: red;
+        }
+
     </style>
 </head>
 
@@ -112,58 +136,57 @@ $nombreDeJours = $interval->days;
 
 <body>
 
+    <!-- En-tête avec logo et nom de l'agence -->
     <div class="header">
-        <!-- Logo à gauche -->
-        <img src="chemin/vers/logo.png" alt="Logo de l'agence">
-
-        <!-- Nom de l'agence à droite -->
-        <div class="agency-name">{{ config('app.name', 'VezoTours') }}</div>
+        {{-- <img src="{{asset('assets/logo.png')}}" alt="Logo de l'agence"> --}}
+        <div class="agency-name">{{ config('app.name', 'Vezo Tours') }}</div>
     </div>
 
-    <h1 style="margin-bottom: 50px">Détails de votre Réservation</h1>
+    <!-- Titre principal de la réservation -->
+    <h1>Détails de votre Réservation</h1>
 
-    <p style="text-align: center; font-size: 1.2em; color: #34495e;">Merci d'avoir choisi notre service. Voici un résumé
-        complet des informations liées à votre réservation.</p>
+    <!-- Message d'introduction -->
+    <p class="reservation-info">Merci d'avoir choisi notre service. Voici un résumé complet des informations liées à votre réservation.</p>
 
+    <!-- Tableau des informations de réservation -->
     <table>
         <tr>
             <th>Nom du Client</th>
-            <td>{{ $reservation->user->nom . ' ' . $reservation->user->prenoms }} </td>
+            <td>{{ $reservation->user->nom . ' ' . $reservation->user->prenoms }}</td>
         </tr>
         <tr>
             <th>Véhicule Réservé</th>
-            <td>{{ $reservation->vehicule->marque }} - <span class="note">{{ $reservation->vehicule->modele }}</span>
-            </td>
+            <td>{{ $reservation->vehicule->marque }} - <span class="note">{{ $reservation->vehicule->modele }}</span></td>
         </tr>
         <tr>
             <th>Date de Début de Location</th>
-            <td>{{ $reservation->date_depart}} </td>
+            <td>{{ $reservation->date_depart }}</td>
         </tr>
         <tr>
             <th>Date de Retour Prévue</th>
-            <td>{{ $reservation->date_retour }} </td>
+            <td>{{ $reservation->date_retour }}</td>
         </tr>
         <tr>
-            <th>Durée de la Réservation (en jours)</th>
+            <th>Durée de la Réservation</th>
             <td class="highlight">{{ $nombreDeJours }} jours</td>
         </tr>
         <tr>
             <th>Statut de la Réservation</th>
             <td>
                 @if ($reservation->status == 'confirmée')
-                    <span style="color: green; font-weight: bold;">Confirmation réussie</span>
+                    <span class="status status-confirmed">Confirmation réussie</span>
                 @elseif ($reservation->status == 'en attente')
-                    <span style="color: orange; font-weight: bold;">En attente de confirmation</span>
+                    <span class="status status-pending">En attente de confirmation</span>
                 @else
-                    <span style="color: red; font-weight: bold;">Réservation annulée</span>
+                    <span class="status status-cancelled">Réservation annulée</span>
                 @endif
             </td>
         </tr>
     </table>
 
+    <!-- Footer avec contact et message de remerciement -->
     <div class="footer">
-        <p>Pour toute question ou modification de votre réservation, veuillez nous contacter à <a
-                href="mailto:support@exemple.com">support@exemple.com</a></p>
+        <p>Pour toute question ou modification de votre réservation, veuillez nous contacter</p>
         <p>Merci de votre confiance, nous vous souhaitons une expérience agréable!</p>
     </div>
 

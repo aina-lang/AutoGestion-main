@@ -155,6 +155,21 @@ class DashboardController extends Controller
         // dd($dashboardData);
         // Retourner les données du tableau de bord selon le type d'utilisateur
         if (Auth::user()->type == "user") {
+            $userReservations = Reservation::where('user_id', Auth::id())
+                ->get();
+
+            // Total des réservations passées et confirmées pour l'utilisateur
+            $userConfirmedReservations = $userReservations->where('status', 'confirmée');
+            $userPastReservations = $userReservations->filter(function ($reservation) {
+                return $reservation->date_retour < now(); // Réservations dont la date de retour est déjà passée
+            });
+
+            // Ajouter des données spécifiques à l'utilisateur
+            $dashboardData['confirmedReservations'] = $userConfirmedReservations->count();
+            $dashboardData['userPastReservations'] = $userPastReservations->count();
+            $dashboardData['totalRentedByUser'] = $userConfirmedReservations->count();
+
+
             return Inertia::render('client/Dashboard', $dashboardData);
         } elseif (Auth::user()->type == "admin") {
             return Inertia::render('admin/Dashboard', $dashboardData);

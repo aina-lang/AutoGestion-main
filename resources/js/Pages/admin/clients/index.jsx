@@ -1,14 +1,12 @@
 import MyHeader from '@/Components/Header';
-import PrimaryButton from '@/Components/PrimaryButton';
 import StyledDataGrid from '@/Components/StyledDataGrid';
 import { Input } from '@/components/ui/input';
 
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Head, Link, router } from '@inertiajs/react';
-import { MoreHorizSharp, TableView } from '@mui/icons-material';
+import { Head, Link } from '@inertiajs/react';
+import { MoreHorizSharp } from '@mui/icons-material';
 import { Grid } from '@mui/material';
-import { GridAddIcon } from '@mui/x-data-grid';
-import { GridIcon, SearchIcon } from 'lucide-react';
+import { SearchIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
 function Index({ clients }) {
@@ -180,14 +178,14 @@ function Index({ clients }) {
                                             {phones.map((phone, index) => (
                                                 <span
                                                     key={index}
-                                                    className="w-full rounded-full bg-blue-200 px-3 py-1 text-center text-sm font-medium text-blue-500"
+                                                    className="w-auto rounded-full bg-green-100 px-2 py-1 text-center text-xs font-medium text-green-600"
                                                 >
                                                     {phone}
                                                 </span>
                                             ))}
                                         </div>
                                     ) : (
-                                        <span className="text-gray-500">
+                                        <span className="text-sm text-gray-500">
                                             Aucun téléphone
                                         </span>
                                     );

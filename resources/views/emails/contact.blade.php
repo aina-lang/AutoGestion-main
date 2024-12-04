@@ -26,7 +26,7 @@
 
         h1 {
             text-align: center;
-            color: #4CAF50;
+            color: #2D3748; /* gray-800 */
         }
 
         p {
@@ -58,14 +58,14 @@
             margin-top: 20px;
             text-decoration: none;
             padding: 10px 20px;
-            background-color: #4CAF50;
+            background-color: #2D3748; /* gray-800 */
             color: white;
             border-radius: 5px;
             font-weight: bold;
         }
 
         .email-link:hover {
-            background-color: #45a049;
+            border:1px solid #1A202C; /* gray-900 for hover effect */
         }
     </style>
 </head>
@@ -83,8 +83,7 @@
         <div class="footer">
             <p>Une personne vous a contacté via le formulaire de contact !</p>
             <p>Voici son message :</p>
-            <a href="mailto: {{ $details['email'] }}"
-                class="email-link">Répondre par Email</a>
+            <a href="mailto: {{ $details['email'] }}" class="email-link">Répondre par Email</a>
         </div>
     </div>
 </body>

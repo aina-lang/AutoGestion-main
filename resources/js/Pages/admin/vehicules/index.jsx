@@ -1,16 +1,14 @@
+import BreadCumbHeader from '@/Components/BreadCumbHeader';
 import MyHeader from '@/Components/Header';
-import PrimaryButton from '@/Components/PrimaryButton';
 import StyledDataGrid from '@/Components/StyledDataGrid';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router } from '@inertiajs/react';
-import { MoreHorizSharp, TableView } from '@mui/icons-material';
+import { MoreHorizSharp } from '@mui/icons-material';
 import { Grid, MenuItem, TextField } from '@mui/material';
-import { GridAddIcon } from '@mui/x-data-grid';
 import debounce from 'lodash/debounce';
 import { SearchIcon } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
-
 
 const index = ({ vehicules, categories }) => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -71,25 +69,23 @@ const index = ({ vehicules, categories }) => {
 
     return (
         <AdminLayout
+            breadcrumbHeader={
+                <BreadCumbHeader
+                    title="Tableau de Bord"
+                    breadcrumbItems={[{ label: 'Véhicules' }]}
+                />
+            }
             header={
                 <MyHeader
                     title="Véhicules"
-                    breadcrumbItems={[{ label: 'Véhicules' }]}
                     right={
-                        <div className="flex space-x-4">
-                            <button onClick={toggleGridView}>
-                                {/* {gridView ? (
-                                    <GridAddIcon
-                                        size={35}
-                                        className="text-gray-500"
-                                    />
-                                ) : (
-                                    <TableView
-                                        fontSize="large"
-                                        className="text-gray-500"
-                                    />
-                                )} */}
-                            </button>
+                        <div className="flex w-full justify-between space-x-4">
+                            <div className="rounded-lg">
+                                <h2 className="mb-4 text-2xl font-bold text-gray-800">
+                                    Liste des véhicules
+                                </h2>
+                            </div>
+                        
                             <div className="flex items-center overflow-hidden rounded-md border bg-white pr-2 dark:bg-gray-800">
                                 <Input
                                     className="border-none p-2 focus:border-none dark:bg-gray-800"
@@ -240,12 +236,10 @@ const index = ({ vehicules, categories }) => {
                                             disableUnderline: true,
                                         },
                                     }}
-                                    
                                     InputProps={{
-                                        
                                         // startAdornment: <AccountCircle />, // <== adjusted this
                                         disableUnderline: true, // <== added this
-                                      }}
+                                    }}
                                 />
                                 <span className="text-gray-800">à</span>
                                 <TextField

@@ -134,11 +134,11 @@ export default function ClientLayout({ header, children }) {
                 />
                 <hr className="my-3" />
               
-                <SidebarItem
+                {/* <SidebarItem
                     icon={<LifeBuoy size={20} />}
                     text="Aide"
                     // link="/help"
-                />
+                /> */}
             </Sidebar>
 
             <div className="flex-grow overflow-y-hidden">

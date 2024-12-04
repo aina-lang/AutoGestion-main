@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import {
     InputLabel,
     MenuItem,
@@ -11,7 +11,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import PrimaryButton from './PrimaryButton';
 
 const modalVariants = {
@@ -20,7 +20,7 @@ const modalVariants = {
 };
 
 const ReservationModal = ({ open, handleClose, car, isAuthenticated }) => {
-    const [reservationDetails, setReservationDetails] = useState({
+    const { data, setData, setError, errors, processing, post } = useForm({
         user_id: '',
         vehicule_id: car.id,
         date_depart: null,
@@ -31,24 +31,15 @@ const ReservationModal = ({ open, handleClose, car, isAuthenticated }) => {
 
     const handleDetailChange = (event) => {
         const { name, value } = event.target;
-        setReservationDetails((prevDetails) => ({
-            ...prevDetails,
-            [name]: value,
-        }));
+        setData(name, value);
     };
 
     const handleDepartureDateChange = (newDate) => {
-        setReservationDetails((prevDetails) => ({
-            ...prevDetails,
-            date_depart: newDate,
-        }));
+        setData('date_depart', newDate);
     };
 
     const handleReturnDateChange = (newDate) => {
-        setReservationDetails((prevDetails) => ({
-            ...prevDetails,
-            date_retour: newDate,
-        }));
+        setData('date_retour', newDate);
     };
 
     const handleSubmit = async (event) => {
@@ -57,12 +48,12 @@ const ReservationModal = ({ open, handleClose, car, isAuthenticated }) => {
 
         // Format dates before appending to formData
         const formattedDetails = {
-            ...reservationDetails,
-            date_depart: reservationDetails.date_depart
-                ? reservationDetails.date_depart.format('YYYY-MM-DD HH:mm:ss')
+            ...data,
+            date_depart: data.date_depart
+                ? data.date_depart.format('YYYY-MM-DD HH:mm:ss')
                 : null,
-            date_retour: reservationDetails.date_retour
-                ? reservationDetails.date_retour.format('YYYY-MM-DD HH:mm:ss')
+            date_retour: data.date_retour
+                ? data.date_retour.format('YYYY-MM-DD HH:mm:ss')
                 : null,
         };
 
@@ -78,16 +69,35 @@ const ReservationModal = ({ open, handleClose, car, isAuthenticated }) => {
         });
 
         // Submit reservation data via Inertia
-        await router.post('/client/reservations', formData, {
+        post('/client/reservations',  {
             onSuccess: () => {
+
                 handleClose(); // Close the modal on successful submission
             },
             onError: (errors) => {
+                Object.keys(errors).forEach((field) => {
+                    if (errors[field] && errors[field][0]) {
+                        setError(field, {
+                            type: 'manual',
+                            message: errors[field],
+                        });
+                    }
+                });
                 console.error('Submission errors:', errors);
             },
         });
     };
 
+
+    useEffect(() => {
+        if (errors) {
+            Object.keys(errors).forEach((field) => {
+                if (errors[field] && errors[field][0]) {
+                    setError(field, { type: 'manual', message: errors[field] });
+                }
+            });
+        }
+    }, [errors, setError]);
     return (
         <Modal
             open={open}
@@ -110,11 +120,13 @@ const ReservationModal = ({ open, handleClose, car, isAuthenticated }) => {
                     fullWidth
                     label="Motif de réservation"
                     name="motif"
-                    value={reservationDetails.motif}
+                    value={data.motif}
                     onChange={handleDetailChange}
                     multiline
                     rows={4}
                     sx={{ mt: 2 }}
+                    error={!!errors.motif}
+                    helperText={errors.motif?.message || ''}
                 />
 
                 {/* Dropdown for Travel Type */}
@@ -124,7 +136,7 @@ const ReservationModal = ({ open, handleClose, car, isAuthenticated }) => {
                 <Select
                     labelId="type-de-voyage-label"
                     name="type_voyage"
-                    value={reservationDetails.type_voyage}
+                    value={data.type_voyage}
                     onChange={handleDetailChange}
                     fullWidth
                     sx={{ mt: 1 }}
@@ -138,7 +150,7 @@ const ReservationModal = ({ open, handleClose, car, isAuthenticated }) => {
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
                             label="Date de départ souhaitée"
-                            value={reservationDetails.date_depart}
+                            value={data.date_depart}
                             onChange={handleDepartureDateChange}
                             shouldDisableDate={(date) =>
                                 date.isBefore(dayjs().startOf('day'))
@@ -148,6 +160,8 @@ const ReservationModal = ({ open, handleClose, car, isAuthenticated }) => {
                                     {...params}
                                     fullWidth
                                     sx={{ mt: 2 }}
+                                    error={!!errors.date_depart}
+                                    helperText={errors.date_depart || ''}
                                 />
                             )}
                         />
@@ -156,16 +170,20 @@ const ReservationModal = ({ open, handleClose, car, isAuthenticated }) => {
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
                             label="Date de retour souhaitée"
-                            value={reservationDetails.date_retour}
+                            value={data.date_retour}
                             onChange={handleReturnDateChange}
                             shouldDisableDate={(date) =>
-                                date.isBefore(reservationDetails.date_depart)
+                                date.isBefore(data.date_depart)
                             }
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
                                     fullWidth
                                     sx={{ mt: 2 }}
+                                    error={!!errors.date_retour}
+                                    helperText={
+                                        errors.date_retour?.message || ''
+                                    }
                                 />
                             )}
                         />
@@ -183,9 +201,13 @@ const ReservationModal = ({ open, handleClose, car, isAuthenticated }) => {
                     )}
                     <PrimaryButton
                         onClick={handleSubmit}
-                        disabled={!isAuthenticated}
+                        disabled={!isAuthenticated || processing}
                     >
-                        Soumettre la réservation
+                        {processing ? (
+                            <span>Chargement...</span>
+                        ) : (
+                            'Soumettre la réservation'
+                        )}
                     </PrimaryButton>
                 </div>
             </motion.div>

@@ -1,15 +1,11 @@
+import BreadCumbHeader from '@/Components/BreadCumbHeader';
 import MyHeader from '@/Components/Header';
-import PrimaryButton from '@/Components/PrimaryButton';
 import StyledDataGrid from '@/Components/StyledDataGrid';
 
-import { Input } from '@/components/ui/input';
-
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Head, router } from '@inertiajs/react';
-import { MoreHorizSharp, TableView } from '@mui/icons-material';
+import { Head } from '@inertiajs/react';
+import { MoreHorizSharp } from '@mui/icons-material';
 import { Grid } from '@mui/material';
-import { GridAddIcon } from '@mui/x-data-grid';
-import { GridIcon, SearchIcon } from 'lucide-react';
 import React, { useState } from 'react';
 
 function Index({ categories }) {
@@ -36,6 +32,14 @@ function Index({ categories }) {
 
     return (
         <AdminLayout
+            breadcrumbHeader={
+                <BreadCumbHeader
+                    breadcrumbItems={[
+                        { label: 'Véhicules', href: '/admin/vehicules/' },
+                        { label: 'Catégories' },
+                    ]}
+                />
+            }
             header={
                 <MyHeader
                     title="Véhicules et Catégories"
@@ -44,7 +48,12 @@ function Index({ categories }) {
                         { label: 'Véhicules' },
                     ]}
                     right={
-                        <div className="flex space-x-4">
+                        <div className="flex w-full justify-between space-x-4">
+                            <div className="rounded-lg">
+                                <h2 className="mb-4 text-2xl font-bold text-gray-800">
+                                    Liste des catégories 
+                                </h2>
+                            </div>
                             {/* <button onClick={toggleGridView}>
                                 {gridView ? (
                                     <GridIcon
@@ -69,14 +78,14 @@ function Index({ categories }) {
                                 />
                                 <SearchIcon size={20} />
                             </div> */}
-                            <PrimaryButton
+                            {/* <PrimaryButton
                                 onClick={() =>
                                     router.get('/admin/categories/create')
                                 }
                             >
                                 <GridAddIcon />
                                 Nouveau Véhicule
-                            </PrimaryButton>
+                            </PrimaryButton> */}
                         </div>
                     }
                 />

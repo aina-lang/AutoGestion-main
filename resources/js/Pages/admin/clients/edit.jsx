@@ -184,6 +184,7 @@ function EditClient({ client }) {
                             type="button"
                             onClick={() => router.get('/admin/clients')}
                             className="text-sm text-gray-600 hover:underline"
+                            isSticky
                         >
                             Annuler
                         </SecondaryButton>

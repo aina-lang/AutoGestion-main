@@ -2,9 +2,8 @@ import MyHeader from '@/Components/Header';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
-import SecondaryButton from '@/Components/SecondaryButton';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import AddCircle from '@mui/icons-material/AddCircle';
 import { Chip, IconButton, TextField } from '@mui/material';
 import React, { useState } from 'react';
@@ -55,15 +54,24 @@ function AddClient() {
                         { label: 'Clients', href: '/admin/clients' },
                         { label: 'Ajouter' },
                     ]}
+                    right={
+                        <div className="mx-auto flex w-full justify-start space-y-5 p-6 pt-0">
+                            <div className="rounded-lg">
+                                <h2 className="mb-2 text-2xl font-bold text-gray-800">
+                                    Ajout d'un client
+                                </h2>
+                                <p className="text-gray-600">
+                                    Veuillez remplir les informations
+                                    nécessaires pour ajouter un nouveau client.
+                                </p>
+                            </div>
+                        </div>
+                    }
                 />
             }
         >
             <Head title="Ajouter un Client" />
-            <div className="mx-auto max-w-3xl p-6">
-                <h1 className="mb-6 text-2xl font-bold text-gray-800">
-                    Ajouter un Nouveau Client
-                </h1>
-
+            <div className="mx-auto p-10 pt-0">
                 <form
                     onSubmit={submit}
                     className="space-y-6 rounded-lg bg-white p-8 shadow-lg"
@@ -87,11 +95,11 @@ function AddClient() {
                             value={data.prenoms}
                             className="w-full"
                             autoComplete="prenoms"
-                            label="Prénoms"
+                            label="Prénom(s)"
                             error={!!errors.prenoms}
                             helperText={errors.prenoms}
                             onChange={(e) => setData('prenoms', e.target.value)}
-                            required
+                            // required
                         />
                         <TextField
                             id="email"
@@ -161,19 +169,19 @@ function AddClient() {
                         )}
                     </div>
 
-                    <div className="flex justify-start space-x-4">
+                    <div className="flex justify-end space-x-4">
                         <PrimaryButton type="submit" disabled={processing}>
                             {processing
                                 ? 'Enregistrement...'
                                 : 'Ajouter Client'}
                         </PrimaryButton>
-                        <SecondaryButton
+                        {/* <SecondaryButton
                             type="button"
                             onClick={() => router.get('/admin/clients')}
                             className="text-sm text-gray-600 hover:underline"
                         >
                             Annuler
-                        </SecondaryButton>
+                        </SecondaryButton> */}
                     </div>
                 </form>
             </div>

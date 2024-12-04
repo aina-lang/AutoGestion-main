@@ -1,14 +1,18 @@
+import BreadCumbHeader from '@/Components/BreadCumbHeader';
 import MyHeader from '@/Components/Header';
 import StyledDataGrid from '@/Components/StyledDataGridForDashboard';
 import UserTooltip from '@/Components/UserTooltip';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head } from '@inertiajs/react';
-import { AdminPanelSettingsOutlined, CarRentalSharp } from '@mui/icons-material';
+import {
+    AdminPanelSettingsOutlined,
+    CarRentalSharp,
+} from '@mui/icons-material';
 import { Link } from '@mui/material';
-import { PieChart, BarChart } from '@mui/x-charts';
-import { CarIcon } from 'lucide-react';
+import { BarChart, PieChart } from '@mui/x-charts';
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { CarIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 const chartSetting = {
     yAxis: [
@@ -37,7 +41,7 @@ const Card = ({ title, value, icon, color }) => {
 
     return (
         <motion.div
-            className={`relative space-x-4 rounded-sm bg-white p-4 py-8 pt-2 shadow-md dark:bg-gray-800 `}
+            className={`relative space-x-4 rounded-sm bg-white p-4 py-8 pt-2 shadow-md dark:bg-gray-800`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: 'spring', stiffness: 100, damping: 10 }}
@@ -74,6 +78,7 @@ export default function Dashboard({
     return (
         <AdminLayout
             header={<MyHeader title="Tableau de Bord" breadcrumbItems={[]} />}
+            breadcrumbHeader={<BreadCumbHeader title="Tableau de Bord" breadcrumbItems={[]} />}
         >
             <Head title="Tableau de Bord" />
             <div className="flex-grow p-4 text-gray-500">
@@ -111,10 +116,14 @@ export default function Dashboard({
                 {/* Section des Cartes */}
                 <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2">
                     <div
-                        className="rounded-sm bg-white p-4 shadow-lg "
+                        className="rounded-sm bg-white p-4 shadow-lg"
                         initial={{ opacity: 0, x: -200 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ type: 'spring', stiffness: 100, damping: 25 }}
+                        transition={{
+                            type: 'spring',
+                            stiffness: 100,
+                            damping: 25,
+                        }}
                     >
                         <h2 className="mb-4 text-xl font-semibold">
                             Répartition des Réservations
@@ -141,16 +150,15 @@ export default function Dashboard({
                                         //             totalPendingReservations),
                                         //     label: 'Autres',
                                         // },
-                                        
                                     ],
                                     innerRadius: 30,
-      outerRadius: 100,
-      paddingAngle: 5,
-      cornerRadius: 5,
-      startAngle: -45,
-      endAngle: 225,
-      cx: 150,
-      cy: 150,
+                                    outerRadius: 100,
+                                    paddingAngle: 5,
+                                    cornerRadius: 5,
+                                    startAngle: -45,
+                                    endAngle: 225,
+                                    cx: 150,
+                                    cy: 150,
                                 },
                             ]}
                             height={300}
@@ -158,10 +166,14 @@ export default function Dashboard({
                     </div>
 
                     <div
-                        className="rounded-sm bg-white p-4 shadow-lg "
+                        className="rounded-sm bg-white p-4 shadow-lg"
                         initial={{ opacity: 0, x: 200 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ type: 'spring', stiffness: 100, damping: 25 }}
+                        transition={{
+                            type: 'spring',
+                            stiffness: 100,
+                            damping: 25,
+                        }}
                     >
                         <h2 className="mb-4 text-xl font-semibold">
                             Répartition des Voitures
@@ -190,7 +202,7 @@ export default function Dashboard({
 
                 {/* Section des Réservations à Venir */}
                 <motion.div
-                    className="mt-8 rounded-sm bg-white  p-4 shadow-lg"
+                    className="mt-8 rounded-sm bg-white p-4 shadow-lg"
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ type: 'spring', stiffness: 100, damping: 25 }}
@@ -244,7 +256,11 @@ export default function Dashboard({
                         className="mt-8 rounded-sm bg-white p-4 shadow-lg"
                         initial={{ opacity: 0, y: 50 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ type: 'spring', stiffness: 100, damping: 25 }}
+                        transition={{
+                            type: 'spring',
+                            stiffness: 100,
+                            damping: 25,
+                        }}
                     >
                         <h2 className="mb-4 text-xl font-semibold">
                             Prochaine Réservation

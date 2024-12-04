@@ -1,10 +1,13 @@
+import AvisComponent from '@/Components/AvisComponent';
+import ConfirmModal from '@/Components/ConfirmModal';
 import Modal from '@/Components/Modal';
 import PrimaryButton from '@/Components/PrimaryButton';
 import ReservationModal from '@/Components/ReservationModal';
+import SecondaryButton from '@/Components/SecondaryButton';
 import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { CarRentalOutlined, Fullscreen } from '@mui/icons-material';
-import { Divider, TextField } from '@mui/material';
+import { Divider } from '@mui/material';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
@@ -14,51 +17,15 @@ function Showvehicule({ vehicule, auth }) {
     const [imageModalOpen, setImageModalOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(0);
     const [reservationModalOpen, setReservationModalOpen] = useState(false);
-    const { data, setData, post, processing, errors, reset } = useForm({
-        note: 0,
-        commentaire: '',
-    });
-
-    const [avis, setAvis] = useState([]);
-
-    console.log(vehicule);
-    // Simulate fetching reviews from the database (Firebase, API, etc.)
-
-    // Function to handle form submission
-    const handleSubmitAvis = async (e) => {
-        e.preventDefault();
-
-        if (!data.commentaire || data.note === 0) {
-            alert('Veuillez remplir le formulaire correctement.');
-            return;
-        }
-
-        // Post the form data (in this case, to the server or API)
-        post(route('avis.store', vehicule.id), {
-            onSuccess: () => {
-                setAvis([
-                    ...avis,
-                    { ...data, id: avis.length + 1, auteur: 'Current User' }, // Replace 'Current User' with the actual user
-                ]);
-                reset(); // Reset form fields
-            },
-            onError: (errors) => {
-                console.error('Error submitting review:', errors);
-                alert('Une erreur est survenue. Veuillez réessayer.');
-            },
-        });
-    };
-
+    const [avisModalOpen, setAvisModalOpen] = useState(false);
+    const [avisDeleteModalOpen, setAvisDeleteModalOpen] = useState(false);
+    const { deletReq: deleteRequest } = useForm();
     const handleOpenReservationModal = (car) => {
         setReservationModalOpen(true);
     };
 
     const handleCloseReservationModal = () => {
         setReservationModalOpen(false);
-    };
-
-    const handleCancelReservation = async (car) => {
-        // Ajoutez la logique pour annuler la réservation
     };
 
     useEffect(() => {
@@ -117,6 +84,9 @@ function Showvehicule({ vehicule, auth }) {
         }
     }, [activeIndex]);
 
+    const userExistingAvis = vehicule.avis.find(
+        (avisItem) => avisItem.user_id === auth.user.id,
+    );
     return (
         <GuestLayout auth={auth} footerShown={false}>
             <Head title={`Véhicule ${vehicule.marque} ${vehicule.modele}`} />
@@ -126,7 +96,41 @@ function Showvehicule({ vehicule, auth }) {
                 car={vehicule}
                 isAuthenticated={auth.user ? true : false}
             />
+            <AvisComponent
+                vehicule={vehicule}
+                userId={auth.user?.id} // Utilisation de l'id de l'utilisateur authentifié
+                isModalOpen={avisModalOpen} // Vous pouvez ajuster l'état du modal pour l'avis si nécessaire
+                setIsModalOpen={() => {
+                    setAvisModalOpen(false);
+                }}
+                userExistingAvis={userExistingAvis}
+                selectedAvisId={null} // Vous pouvez ajouter un id d'avis sélectionné si nécessaire
+            />
 
+            <ConfirmModal
+                open={avisDeleteModalOpen}
+                onClose={() => setAvisDeleteModalOpen(false)}
+                title="Supprimer l'avis"
+                content="Êtes-vous sûr de vouloir supprimer cet avis ?"
+                onConfirm={() => {
+                    router.delete(
+                        `/vehicules/${vehicule.id}/avis/${userExistingAvis.id}`,
+                        {
+                            onSuccess: () => {
+                                setAvisDeleteModalOpen(false); // Close the modal after deleting
+                                // Close the form modal if open
+                            },
+                            onError: (errors) => {
+                                console.error('Error deleting review:', errors);
+                                alert(
+                                    'Une erreur est survenue. Veuillez réessayer.',
+                                );
+                            },
+                        },
+                    );
+                    setAvisDeleteModalOpen(false);
+                }}
+            />
             <div className="mx-auto space-y-5 bg-gray-50 p-6 py-24">
                 <div className="rounded-lg p-6 transition-transform duration-300">
                     <div className="flex h-full flex-col">
@@ -245,17 +249,17 @@ function Showvehicule({ vehicule, auth }) {
                                         {vehicule.marque} / {vehicule.modele}
                                     </h2>
                                     <div className="grid grid-cols-2 gap-4 text-gray-700">
-                                        <div className="col-span-2 flex justify-between">
+                                        {/* <div className="col-span-2 flex justify-between">
                                             <p>
                                                 <strong>
                                                     Immatriculation:
                                                 </strong>
                                             </p>
                                             <p>{vehicule.immatriculation}</p>
-                                        </div>
+                                        </div> */}
                                         <div className="col-span-2 flex justify-between">
                                             <p>
-                                                <strong>Kilométrage:</strong>
+                                                <strong>Vitesse:</strong>
                                             </p>
                                             <p>{vehicule.vitesse} km/h</p>
                                         </div>
@@ -365,9 +369,81 @@ function Showvehicule({ vehicule, auth }) {
 
                 <div className="bg-white p-5">
                     <div className="bg-white p-5">
-                        <h3 className="text-xl font-semibold text-gray-800">
-                            Avis sur le véhicule
-                        </h3>
+                        <div>
+                            <h3 className="text-xl font-semibold text-gray-800">
+                                Avis sur le véhicule
+                            </h3>
+
+                            {/* Conditionally display buttons based on if the user has already provided a review */}
+                            {vehicule.avis.length > 0 ? (
+                                vehicule.avis.map((avisItem) => (
+                                    <div
+                                        key={avisItem.id}
+                                        className="mb-4 mt-5 border-b"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-semibold">
+                                                {avisItem.user.nom}
+                                            </span>
+
+                                            <div className="flex h-full flex-col items-end justify-between text-sm text-gray-500">
+                                                {new Date(
+                                                    avisItem.created_at,
+                                                ).toLocaleDateString('fr-FR', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                })}
+                                                <span className="mt-4 text-yellow-500">
+                                                    {'★'.repeat(avisItem.note)}
+                                                    {'☆'.repeat(
+                                                        5 - avisItem.note,
+                                                    )}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <p className="mt-2 text-gray-700">
+                                            {avisItem.commentaire}
+                                        </p>
+                                        {}
+                                        {/* Si l'avis appartient à l'utilisateur actuel, afficher les boutons Modifier et Supprimer */}
+                                        {avisItem.user.id == auth.user.id ? ( // Remplacez 'user123' par l'ID de l'utilisateur connecté
+                                            <div className="my-4 flex space-x-4">
+                                                <PrimaryButton
+                                                    className="rounded bg-blue-500 px-4 py-2 text-white"
+                                                    onClick={() =>
+                                                        setAvisModalOpen(true)
+                                                    }
+                                                >
+                                                    Modifier
+                                                </PrimaryButton>
+                                                <SecondaryButton
+                                                    onClick={() =>
+                                                        setAvisDeleteModalOpen(
+                                                            true,
+                                                        )
+                                                    }
+                                                    isSticky
+                                                    className="rounded bg-red-500 px-4 py-2 text-white"
+                                                >
+                                                    Supprimer
+                                                </SecondaryButton>
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-gray-600">
+                                    <PrimaryButton
+                                        className="rounded bg-blue-500 px-4 py-2 text-white"
+                                        onClick={() => setAvisModalOpen(true)}
+                                    >
+                                        Ajoutez votre avis sur le véhicule
+                                    </PrimaryButton>
+                                </p>
+                            )}
+                        </div>
+
                         <div className="mt-4">
                             {vehicule.avis.length > 0 ? (
                                 vehicule.avis.map((avisItem) => (
@@ -379,10 +455,22 @@ function Showvehicule({ vehicule, auth }) {
                                             <span className="font-semibold">
                                                 {avisItem.user.nom}
                                             </span>
-                                            <span className="text-yellow-500">
-                                                {'★'.repeat(avisItem.note)}
-                                                {'☆'.repeat(5 - avisItem.note)}
-                                            </span>
+
+                                            <div className="flex h-full flex-col items-end justify-between text-sm text-gray-500">
+                                                {new Date(
+                                                    avisItem.created_at,
+                                                ).toLocaleDateString('fr-FR', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                })}
+                                                <span className="mt-4 text-yellow-500">
+                                                    {'★'.repeat(avisItem.note)}
+                                                    {'☆'.repeat(
+                                                        5 - avisItem.note,
+                                                    )}
+                                                </span>
+                                            </div>
                                         </div>
                                         <p className="mt-2 text-gray-600">
                                             {avisItem.commentaire}
@@ -392,57 +480,6 @@ function Showvehicule({ vehicule, auth }) {
                             ) : (
                                 <p>Aucun avis disponible pour ce véhicule.</p>
                             )}
-                        </div>
-                    </div>
-                    {/* <Divider />{' '} */}
-                    <div className="mt-4 p-5">
-                        <h3 className="text-xl font-semibold text-gray-800">
-                            Laisser un avis
-                        </h3>
-
-                        <div className="mt-2">
-                            <TextField
-                                label="Commentaire"
-                                multiline
-                                rows={4}
-                                value={data.commentaire}
-                                onChange={(e) =>
-                                    setData('commentaire', e.target.value)
-                                } // Use setData to update form data
-                                fullWidth
-                                error={errors.commentaire}
-                                helperText={errors.commentaire} // Show validation errors
-                            />
-                        </div>
-
-                        <div className="mt-2">
-                            <label className="block text-gray-700">Note</label>
-                            <div className="flex space-x-2">
-                                {[1, 2, 3, 4, 5].map((value) => (
-                                    <button
-                                        key={value}
-                                        onClick={() => setData('note', value)} // Use setData for note field
-                                        className={`${
-                                            data.note >= value
-                                                ? 'text-yellow-500'
-                                                : 'text-gray-400'
-                                        } text-2xl`}
-                                    >
-                                        ★
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="mt-4">
-                            <PrimaryButton
-                                variant="contained"
-                                color="primary"
-                                onClick={handleSubmitAvis}
-                                disabled={processing} // Disable button while submitting
-                            >
-                                {processing ? 'Envoi...' : "Soumettre l'avis"}
-                            </PrimaryButton>
                         </div>
                     </div>
                 </div>

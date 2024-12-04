@@ -1,14 +1,12 @@
 import MyHeader from '@/Components/Header';
 import PrimaryButton from '@/Components/PrimaryButton';
 import StyledDataGrid from '@/Components/StyledDataGrid'; // Importation de la table générique
-import { Input } from '@/components/ui/input';
 import UserTooltip from '@/Components/UserTooltip';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router } from '@inertiajs/react';
-import { MoreHorizSharp, TableView } from '@mui/icons-material';
+import { MoreHorizSharp } from '@mui/icons-material';
 import { Grid } from '@mui/material';
 import { GridAddIcon } from '@mui/x-data-grid';
-import { SearchIcon } from 'lucide-react';
 import React, { useState } from 'react';
 
 const index = ({ reservations }) => {
@@ -79,20 +77,19 @@ const index = ({ reservations }) => {
                         { label: 'Véhicules' },
                     ]}
                     right={
-                        <div className="flex space-x-4">
-                            <button onClick={toggleGridView}>
-                                {/* {gridView ? (
-                                    <GridAddIcon
-                                        size={35}
-                                        className="text-gray-500"
-                                    />
-                                ) : (
-                                    <TableView
-                                        fontSize="large"
-                                        className="text-gray-500"
-                                    />
-                                )} */}
-                            </button>
+                        <div className="flex w-full space-x-4">
+                            <div className="mx-auto flex w-full justify-between items-center space-y-5 p-6 pt-0">
+                                <div className="rounded-lg">
+                                    <h2 className="mb-2 text-2xl font-bold text-gray-800">
+                                        Liste des réservations
+                                    </h2>
+                                    <p className="text-gray-600">
+                                        Retrouvez ci-dessous la liste complète
+                                        des réservations enregistrées.
+                                    </p>
+                                </div>
+                            </div>
+
                             {/* <div className="flex items-center overflow-hidden rounded-md border bg-gray-50 pr-2 dark:bg-gray-800">
                                 <Input
                                     className="border-none bg-gray-50 p-2 focus:border-none dark:bg-gray-800"
@@ -104,14 +101,17 @@ const index = ({ reservations }) => {
                                 />
                                 <SearchIcon size={20} />
                             </div> */}
-                            <PrimaryButton
-                                onClick={() =>
-                                    router.get('/admin/reservations/create')
-                                }
-                            >
-                                <GridAddIcon />
-                                Nouveau Reservation
-                            </PrimaryButton>
+                            <div>
+                                {' '}
+                                <PrimaryButton
+                                    onClick={() =>
+                                        router.get('/admin/reservations/create')
+                                    }
+                                >
+                                    <GridAddIcon />
+                                    Reservation
+                                </PrimaryButton>
+                            </div>
                         </div>
                     }
                 />

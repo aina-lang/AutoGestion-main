@@ -116,10 +116,11 @@ export function SidebarItem({ icon, text, alert, children, link }) {
         }
     };
 
+    
     return (
         <>
             <li
-                className={`group relative z-50 my-1 flex cursor-pointer flex-col items-start rounded-md px-3 py-2 text-sm font-medium transition-colors ${isActive ? 'shadow-lg' : ''}`}
+                className={`group relative z-50 h-10 justify-center my-1 flex cursor-pointer flex-col items-start rounded-md px-3 py-2 text-sm font-medium transition-colors ${isActive ? 'shadow-lg' : ''}`}
                 onClick={handleNavigation}
                 style={{
                     background: isActive
@@ -170,7 +171,7 @@ export function SidebarItem({ icon, text, alert, children, link }) {
 
             {/* Expanded submenu when sidebar is expanded */}
             {children && isSubMenuOpen && expanded && (
-                <ul className="pl-6">{children}</ul>
+                <ul className="pl-2">{children}</ul>
             )}
         </>
     );

@@ -9,7 +9,8 @@ use App\Models\Vehicule;
 use App\Notifications\ReservationCancelled;
 use App\Notifications\ReservationCreated;
 use App\Notifications\ReservationStatusUpdated;
-
+use App\Notifications\ReservationUpdatedByAdmin;
+use App\Notifications\ReservationUpdatedByUser;
 use App\Traits\BulkAction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -17,6 +18,7 @@ use Inertia\Inertia;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
+
 
 class ReservationController extends Controller
 {
@@ -105,6 +107,7 @@ class ReservationController extends Controller
     {
         // Validation des données d'entrée
         $validator = Validator::make($request->all(), [
+
             'vehicule_id' => 'required|exists:vehicules,id',
             'date_depart' => 'required|date|after_or_equal:today',
             'date_retour' => 'required|date|after:date_depart',
@@ -113,6 +116,7 @@ class ReservationController extends Controller
             // 'pieces_jointes' => 'array',
             // 'pieces_jointes.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
+
 
         // dd($validator);
         if ($validator->fails()) {
@@ -143,12 +147,20 @@ class ReservationController extends Controller
                 ? Auth::user()->id
                 : $request->user_id;
 
+            // $dateDepart = $request->date_depart;
+            // $dateRetour = $request->date_retour;
+            // if (Auth::user()->type == "admin") {
+            $dateDepart = \Carbon\Carbon::parse($request->date_depart)->format('Y-m-d H:i:s');
+            $dateRetour = \Carbon\Carbon::parse($request->date_retour)->format('Y-m-d H:i:s');
+            // }
+
+            // dd($request->all());
             // Création de la réservation avec le statut "en attente"
             $reservation = Reservation::create([
                 'user_id' => $userId,
                 'vehicule_id' => $request->vehicule_id,
-                'date_depart' => $request->date_depart,
-                'date_retour' => $request->date_retour,
+                'date_depart' => $dateDepart,
+                'date_retour' => $dateRetour,
                 'motif' => $request->motif,
                 'type_voyage' => $request->type_voyage, // Ajout du type de voyage
                 // 'pieces_jointes' => json_encode($request->pieces_jointes),
@@ -157,7 +169,8 @@ class ReservationController extends Controller
 
 
             if (Auth::check() && Auth::user()->type == "user") {
-                $admin = User::where('type', 'admin')->first(); // Récupère l'administrateur
+                $admin = User::where('type', 1)->first(); // Récupère l'administrateur
+                // dd($admin);
                 Notification::send($admin, new ReservationCreated($reservation));
             }
 
@@ -191,17 +204,28 @@ class ReservationController extends Controller
         $vehicules = Vehicule::all();
         $categories = Categorie::all();
 
-        return Inertia::render('admin/reservations/edit', [
-            'reservation' => $reservation,
-            'users' => $users,
-            'vehicules' => $vehicules,
-            'categories' => $categories,
-        ]);
+        if (Auth::user()->type == "admin") {
+            return Inertia::render('admin/reservations/edit', [
+                'reservation' => $reservation,
+                'users' => $users,
+                'vehicules' => $vehicules,
+                'categories' => $categories,
+            ]);
+        } else {
+            return Inertia::render('client/reservations/edit', [
+                'reservation' => $reservation,
+                'users' => $users,
+                'vehicules' => $vehicules,
+                'categories' => $categories,
+            ]);
+        }
     }
 
     /**
      * Mettre à jour la ressource spécifiée dans le stockage.
      */
+
+
     public function update(Request $request, string $id)
     {
         $reservation = Reservation::findOrFail($id);
@@ -214,9 +238,6 @@ class ReservationController extends Controller
             'date_retour' => 'required|date|after:date_depart',
             'motif' => 'required|string|max:255',
             'type_voyage' => 'required|in:circuit,boucle,transfert',
-            // 'pieces_jointes' => 'array',
-            // 'pieces_jointes.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
-            // 'status' => 'required|in:en_attente,confirmée,annulée',
         ]);
 
         if ($validator->fails()) {
@@ -244,18 +265,27 @@ class ReservationController extends Controller
         }
 
         try {
+            // Mise à jour de la réservation
             $reservation->update([
                 'user_id' => $request->user_id,
                 'vehicule_id' => $request->vehicule_id,
                 'date_depart' => $request->date_depart,
                 'date_retour' => $request->date_retour,
                 'motif' => $request->motif,
-                'type_voyage' => $request->type_voyage, // Mise à jour du type de voyage
-                // 'pieces_jointes' => json_encode($request->pieces_jointes),
-                // 'status' => $request->status,
+                'type_voyage' => $request->type_voyage,
             ]);
 
-            session()->flash('success', 'Réservation mise à jour avec succès.');
+            // Notification selon le rôle de l'utilisateur connecté
+            if (Auth::user()->type=="admin") {
+                // Si l'admin effectue la mise à jour, notifier l'utilisateur
+                Notification::send($reservation->user, new  ReservationUpdatedByAdmin($reservation));
+                session()->flash('success', 'Réservation mise à jour avec succès. L\'utilisateur a été notifié.');
+            } else {
+                // Si l'utilisateur effectue la mise à jour, notifier l'admin
+                Notification::send(User::where('type', 1)->get(), new ReservationUpdatedByUser($reservation));
+                session()->flash('success', 'Réservation mise à jour avec succès. L\'administrateur a été notifié.');
+            }
+
             return redirect()->route('reservations.index');
         } catch (Exception $e) {
             session()->flash('error', 'Erreur lors de la mise à jour de la réservation : ' . $e->getMessage());
@@ -280,7 +310,7 @@ class ReservationController extends Controller
 
             if ($currentUser->type == "user") {
                 // Notifier l'administrateur si l'utilisateur est un client
-                $admin = User::where('type', 'admin')->first(); // Récupère un administrateur
+                $admin = User::where('type', '1')->first(); // Récupère un administrateur
                 if ($admin) {
                     Notification::send($admin, new ReservationCreated($reservation));
                 }
@@ -294,7 +324,7 @@ class ReservationController extends Controller
         }
 
         // Flash message de succès
-        session()->flash('success', 'Réservation supprimée avec succès.');
+        session()->flash('success', 'Réservation annulée avec succès.');
 
         // Redirection vers la page précédente
         return redirect()->back();
@@ -324,8 +354,6 @@ class ReservationController extends Controller
                         });
                 })
                 ->get();
-
-
 
             // Si aucune réservation existante ne se chevauche, approuver la réservation
             if ($reservation->status == 'confirmée') {
@@ -359,7 +387,26 @@ class ReservationController extends Controller
         try {
             $reservation = Reservation::findOrFail($id);
             $reservation->status = 'annulée';
+
+
             $reservation->save();
+            if (Auth::check()) {
+                $currentUser = Auth::user();
+
+                if ($currentUser->type == "user") {
+                    // Notifier l'administrateur si l'utilisateur est un client
+                    $admin = User::where('type', 'admin')->first(); // Récupère un administrateur
+                    if ($admin) {
+                        Notification::send($admin, new ReservationCreated($reservation));
+                    }
+                } elseif ($currentUser->type == "admin") {
+                    // Notifier l'utilisateur que sa réservation a été annulée si c'est un administrateur qui l'a supprimée
+                    $user = User::find($reservation->user_id); // Récupérer le client
+                    if ($user) {
+                        Notification::send($user, new ReservationCancelled($reservation));
+                    }
+                }
+            }
 
             session()->flash('success', 'Réservation annulée avec succès.');
         } catch (Exception $e) {

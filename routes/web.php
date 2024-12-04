@@ -41,7 +41,7 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/vehicule/{vehicule}/pdf', [PdfController::class, 'vehicule'])->name('vehicule.pdf');
     Route::get('/reservation/{reservation}/pdf', [PdfController::class, 'reservation'])->name('reservation.pdf');
-
+    Route::put('/reservation/{id}/cancel', [ReservationController::class, 'cancel'])->name('reservation.cancel');
 
 
     Route::middleware('user-access:admin|user')->group(function () {
@@ -90,11 +90,14 @@ Route::middleware('auth', 'verified')->group(function () {
                 'index' => 'avis.index',
                 'store' => 'avis.store',
                 'show' => 'avis.show',
-                'update' => 'avis.update',
-                'destroy' => 'avis.destroy',
+                'update' => 'avis.updatee',
+                'destroy' => 'avis.destroys',
             ])
 
         ;
+        Route::delete('vehicules/{vehicule}/avis/{avi}', [AvisController::class, 'destroy'])->name('avis.destroy');
+
+        Route::put('vehicules/{vehicule}/avis/{avi}', [AvisController::class, 'update'])->name('avis.update');
     });
 });
 

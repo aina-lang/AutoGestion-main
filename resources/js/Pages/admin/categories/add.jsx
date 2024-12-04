@@ -1,10 +1,10 @@
+import BreadCumbHeader from '@/Components/BreadCumbHeader';
 import ConfirmModal from '@/Components/ConfirmModal';
 import MyHeader from '@/Components/Header';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import { TextField } from '@mui/material';
-import { GridAddIcon } from '@mui/x-data-grid';
 import React from 'react';
 
 function AddCategorie({ categories }) {
@@ -27,6 +27,15 @@ function AddCategorie({ categories }) {
 
     return (
         <AdminLayout
+            breadcrumbHeader={
+                <BreadCumbHeader
+                    breadcrumbItems={[
+                        { label: 'Véhicules', href: '/admin/vehicules/' },
+                        { label: 'Catégories', href: '/admin/categories/' },
+                        { label: 'Ajouter un Catégorie' },
+                    ]}
+                />
+            }
             header={
                 <MyHeader
                     title="Ajouter un Véhicule"
@@ -37,12 +46,12 @@ function AddCategorie({ categories }) {
                     ]}
                     right={
                         <div className="flex space-x-4 py-5">
-                            <PrimaryButton
+                            {/* <PrimaryButton
                                 onClick={() => router.get('/vehicules')}
                             >
                                 <GridAddIcon />
                                 Retour aux Véhicules
-                            </PrimaryButton>
+                            </PrimaryButton> */}
                         </div>
                     }
                 />
@@ -50,8 +59,17 @@ function AddCategorie({ categories }) {
         >
             <Head title="Ajouter un Véhicule" />
             <div className="mx-auto space-y-5 p-6 pt-0">
-                <form onSubmit={handleSubmit} className=''>
-                    <div className="mb-4 rounded-md bg-white p-5 shadow-lg grid gap-4">
+                <div className="rounded-lg">
+                    <h2 className="mb-2 text-2xl font-bold text-gray-800">
+                        Ajout d'une catégorie de véhicule
+                    </h2>
+                    <p className="text-gray-600">
+                        Veuillez remplir les informations nécessaires pour
+                        ajouter une nouvelle catégorie de véhicule.
+                    </p>
+                </div>
+                <form onSubmit={handleSubmit} className="">
+                    <div className="mb-4 grid gap-4 rounded-md bg-white p-5 shadow-lg">
                         <TextField
                             label="Nom"
                             value={data.nom}
